@@ -29,6 +29,24 @@
     </div>
 
     <div class="mb-3">
+        <label class="block font-medium text-beige-800 mb-1">Categorias</label>
+        <select name="categories[]" multiple 
+            class="border border-beige-500 p-2 w-full rounded focus:ring-beige-600 focus:border-beige-600 bg-beige-100 text-beige-900 h-32">
+            
+            @foreach($categories as $category)
+                @php
+                    $selected = (isset($product) && $product->categories->contains($category->id)) ? 'selected' : '';
+                @endphp
+                
+                <option value="{{ $category->id }}" {{ $selected }}>
+                    {{ $category->nome }}
+                </option>
+            @endforeach
+        </select>
+        <p class="text-sm text-beige-600 mt-1">Selecione uma ou mais categorias (segure Ctrl/Cmd).</p>
+    </div>
+
+    <div class="mb-3">
         <label class="block font-medium text-beige-800 mb-1">Preço</label>
         <input class="border border-beige-500 p-2 w-full rounded focus:ring-beige-600 focus:border-beige-600 bg-beige-100 text-beige-900" name="price" value="{{ old('price',$product->price) }}">
     </div>
