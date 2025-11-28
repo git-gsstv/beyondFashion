@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -15,7 +16,12 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('products.create', ['product' => new Product]);
+        $categories = Category::all();
+    
+        return view('products.create', [
+        'product' => new Product(),
+        'categories' => $categories,
+    ]);
     }
 
     public function store(Request $request)
@@ -27,9 +33,15 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
-        Product::create($data);
+        $product = Product::create($data);
+        
+        // Sincroniza as categorias (salva na tabela pivô)
+        $product->categories()->sync($request->input('categories', []));
+
         return redirect()->route('products.index')->with('success','Produto criado.');
     }
 
@@ -40,7 +52,8 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        $categories = Category::all();
+        return view('products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
@@ -52,9 +65,15 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         $product->update($data);
+        
+        // Sincroniza as categorias (atualiza a tabela pivô)
+        $product->categories()->sync($request->input('categories', []));
+        
         return redirect()->route('products.index')->with('success','Produto atualizado.');
     }
 
