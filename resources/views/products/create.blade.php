@@ -1,0 +1,17 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-beige-900 leading-tight">
+            {{ __('Novo Produto') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-beige-200 overflow-hidden shadow-md shadow-beige-500/50 sm:rounded-lg p-6">
+                
+                @include('products.product-form', ['product' => new App\Models\Product()])
+                
+            </div>
+        </div>
+    </div>
+</x-app-layout>
