@@ -2,7 +2,7 @@
     {{ $product->exists ? 'Editar Produto' : 'Novo Produto' }}
 </h1>
 
-<form method="POST" action="{{ $product->exists ? route('products.update',$product) : route('products.store') }}">
+<form method="POST" action="{{ $product->exists ? route('products.update',$product) : route('products.store') }}" autocomplete="off">
     @csrf
     @if($product->exists) @method('PUT') @endif
 
