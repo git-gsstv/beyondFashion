@@ -3,7 +3,7 @@
 </h1>
 
 {{-- A tag FORM não tem estilo de fundo/sombra, pois isso é definido no create/edit.blade.php --}}
-<form method="POST" action="{{ $category->exists ? route('categories.update',$category) : route('categories.store') }}">
+<form method="POST" action="{{ $category->exists ? route('categories.update',$category) : route('categories.store') }}" autocomplete="off">
     @csrf
     @if($category->exists) @method('PUT') @endif
 
