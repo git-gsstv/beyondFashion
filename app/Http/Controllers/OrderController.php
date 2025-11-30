@@ -3,67 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\Employee; // Precisamos do Model Employee
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Http\Requests\OrderStoreRequest;
+use App\Http\Requests\OrderUpdateRequest;
 
 class OrderController extends Controller
 {
-    public function index()
+    private function getFormData()
     {
-        // Carrega o relacionamento 'employee' para evitar o problema N+1
-        $orders = Order::with('employee')->latest()->paginate(10);
-        return view('orders.index', compact('orders'));
+        $vendedores = Employee::all();
+        $statusOptions = ['Pendente', 'Em Processamento', 'Enviado', 'Entregue', 'Cancelado'];
+        $paymentMethods = ['Crédito', 'Débito', 'Pix', 'Dinheiro', 'Boleto'];
+        
+        return compact('vendedores', 'statusOptions', 'paymentMethods');
     }
 
-    private function getFormDependencies()
+    public function index()
     {
-        // Opções de Turno e Pagamento
-        $statuses = ['Pendente', 'Pago', 'Enviado', 'Cancelado'];
-        $payments = ['Crédito', 'Débito', 'Dinheiro', 'PIX'];
-        
-        // Funcionários para o select de quem fez a venda
-        $employees = Employee::orderBy('nome')->get();
-        
-        return compact('statuses', 'payments', 'employees');
+        $orders = Order::with('vendedor')->paginate(10);
+        return view('orders.index', compact('orders'));
     }
 
     public function create()
     {
         $order = new Order();
-        return view('orders.create', array_merge(compact('order'), $this->getFormDependencies()));
+        $formData = $this->getFormData();
+        return view('orders.create', array_merge(compact('order'), $formData)); 
     }
 
-    public function store(Request $request)
+    public function store(OrderStoreRequest $request)
     {
-        $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'cliente_nome' => 'required|string|max:150',
-            'status' => 'required|in:Pendente,Pago,Enviado,Cancelado',
-            'forma_pagamento' => 'required|in:Crédito,Débito,Dinheiro,PIX',
-            'total' => 'required|numeric|min:0',
-        ]);
-
-        Order::create($validated);
+        Order::create($request->validated());
 
         return redirect()->route('orders.index')->with('success', 'Pedido criado com sucesso!');
     }
 
-    public function edit(Order $order)
+    public function show(Order $order)
     {
-        return view('orders.edit', array_merge(compact('order'), $this->getFormDependencies()));
+        return view('orders.show', compact('order'));
     }
 
-    public function update(Request $request, Order $order)
+    public function edit(Order $order)
     {
-        $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'cliente_nome' => 'required|string|max:150',
-            'status' => 'required|in:Pendente,Pago,Enviado,Cancelado',
-            'forma_pagamento' => 'required|in:Crédito,Débito,Dinheiro,PIX',
-            'total' => 'required|numeric|min:0',
-        ]);
+        $formData = $this->getFormData();
+        return view('orders.edit', array_merge(compact('order'), $formData)); 
+    }
 
-        $order->update($validated);
+    public function update(OrderUpdateRequest $request, Order $order)
+    {
+        $order->update($request->validated());
 
         return redirect()->route('orders.index')->with('success', 'Pedido atualizado com sucesso!');
     }
@@ -71,6 +60,7 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $order->delete();
-        return redirect()->route('orders.index')->with('success', 'Pedido removido com sucesso!');
+
+        return redirect()->route('orders.index')->with('success', 'Pedido excluído com sucesso!');
     }
 }

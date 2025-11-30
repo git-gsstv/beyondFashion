@@ -40,7 +40,7 @@
                             <tr class="border-b border-beige-700 hover:bg-beige-800/80 transition">
                                 <td class="p-3">{{ $order->id }}</td>
                                 <td class="p-3">{{ $order->cliente_nome }}</td>
-                                <td class="p-3">{{ $order->employee->nome ?? 'N/A' }}</td>
+                                <td class="p-3">{{ $order->vendedor->nome ?? 'N/A' }}</td>
                                 <td class="p-3">R$ {{ number_format($order->total, 2, ',', '.') }}</td>
                                 <td class="p-3 hidden sm:table-cell">{{ $order->forma_pagamento }}</td>
                                 <td class="p-3">
