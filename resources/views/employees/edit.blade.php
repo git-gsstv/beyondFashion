@@ -9,7 +9,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-beige-200 overflow-hidden shadow-md shadow-beige-500/50 sm:rounded-lg p-6">
                 
-                {{-- $shifts e $employee são passados pelo controller --}}
                 @include('employees.form', ['employee' => $employee])
                 
             </div>

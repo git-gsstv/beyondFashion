@@ -4,57 +4,56 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use App\Http\Requests\EmployeeStoreRequest;
+use App\Http\Requests\EmployeeUpdateRequest;
 
 class EmployeeController extends Controller
 {
     public function index()
     {
-        $employees = Employee::orderBy('nome')->get();
+        $employees = Employee::paginate(10);
         return view('employees.index', compact('employees'));
     }
 
     public function create()
     {
         $employee = new Employee();
-        $shifts = ['Manhã', 'Tarde', 'Noite'];
-        return view('employees.create', compact('employee', 'shifts'));
+        
+        $turnos = ['Manhã', 'Tarde', 'Noite', 'Integral']; 
+        
+        return view('employees.create', compact('employee', 'turnos'));
     }
 
-    public function store(Request $request)
+    public function store(EmployeeStoreRequest $request)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:150',
-            'cargo' => 'required|string|max:100',
-            'turno' => 'required|in:Manhã,Tarde,Noite',
-        ]);
+        Employee::create($request->validated());
 
-        Employee::create($validated);
+        return redirect()->route('employees.index')->with('success', 'Funcionário criado com sucesso!');
+    }
 
-        return redirect()->route('employees.index')->with('success', 'Funcionário(a) criado(a) com sucesso!');
+    public function show(Employee $employee)
+    {
+        return view('employees.show', compact('employee'));
     }
 
     public function edit(Employee $employee)
     {
-        $shifts = ['Manhã', 'Tarde', 'Noite'];
-        return view('employees.edit', compact('employee', 'shifts'));
+        $turnos = ['Manhã', 'Tarde', 'Noite', 'Integral']; 
+        
+        return view('employees.edit', compact('employee', 'turnos'));
     }
 
-    public function update(Request $request, Employee $employee)
+    public function update(EmployeeUpdateRequest $request, Employee $employee)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:150',
-            'cargo' => 'required|string|max:100',
-            'turno' => 'required|in:Manhã,Tarde,Noite',
-        ]);
+        $employee->update($request->validated());
 
-        $employee->update($validated);
-
-        return redirect()->route('employees.index')->with('success', 'Funcionário(a) atualizado(a) com sucesso!');
+        return redirect()->route('employees.index')->with('success', 'Funcionário atualizado com sucesso!');
     }
 
     public function destroy(Employee $employee)
     {
         $employee->delete();
-        return redirect()->route('employees.index')->with('success', 'Funcionário(a) removido(a) com sucesso!');
+
+        return redirect()->route('employees.index')->with('success', 'Funcionário excluído com sucesso!');
     }
 }
