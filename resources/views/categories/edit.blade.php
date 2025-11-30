@@ -9,7 +9,6 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-beige-200 overflow-hidden shadow-md shadow-beige-500/50 sm:rounded-lg p-6">
                 
-                {{-- Presumindo que o Controller passa a variável $category --}}
                 @include('categories.form', ['category' => $category])
                 
             </div>

@@ -32,7 +32,6 @@
                     </thead>
 
                     <tbody>
-                        {{-- Presumindo que você passa $categories para a view --}}
                         @forelse($categories as $category)
                         <tr class="border-b border-beige-700 hover:bg-beige-800/80 transition">
                             <td class="p-3">{{ $category->nome }}</td>
