@@ -2,6 +2,17 @@
     {{ $product->exists ? 'Editar Produto' : 'Novo Produto' }}
 </h1>
 
+    @if ($errors->any())
+        <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-100 border border-red-300">
+            <p class="font-bold mb-1">Por favor, corrija os seguintes erros:</p>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
 <form method="POST" action="{{ $product->exists ? route('products.update',$product) : route('products.store') }}" autocomplete="off">
     @csrf
     @if($product->exists) @method('PUT') @endif
@@ -28,23 +39,45 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <label class="block font-medium text-beige-800 mb-1">Categorias</label>
-        <select name="categories[]" multiple 
-            class="border border-beige-500 p-2 w-full rounded focus:ring-beige-600 focus:border-beige-600 bg-beige-100 text-beige-900 h-32">
-            
-            @foreach($categories as $category)
-                @php
-                    $selected = (isset($product) && $product->categories->contains($category->id)) ? 'selected' : '';
-                @endphp
+<div class="mb-3">
+    <label class="block font-medium text-beige-800 mb-1">Categorias</label>
+    <select name="categories[]" multiple
+        class="border border-beige-500 p-2 w-full rounded focus:ring-beige-600 focus:border-beige-600 bg-beige-100 text-beige-900 h-32">
+        
+        @foreach($categories as $category)
+            @php
+                $is_selected_by_model = $product->exists && $product->categories->contains($category->id);
                 
-                <option value="{{ $category->id }}" {{ $selected }}>
-                    {{ $category->nome }}
-                </option>
-            @endforeach
-        </select>
-        <p class="text-sm text-beige-600 mt-1">Selecione uma ou mais categorias (segure Ctrl/Cmd).</p>
+                $is_selected_by_old = in_array($category->id, old('categories', []));
+                
+                $selected = $is_selected_by_model || $is_selected_by_old ? 'selected' : '';
+            @endphp
+            
+            <option value="{{ $category->id }}" {{ $selected }}>
+                {{ $category->nome }} 
+            </option>
+        @endforeach
+    </select>
+    <p class="text-sm text-beige-600 mt-1">Selecione uma ou mais categorias (segure Ctrl/Cmd).</p>
     </div>
+
+    <div class="mb-3">
+    <label class="block font-medium text-beige-800 mb-1">Fornecedor</label>
+    <select name="supplier_id"
+        size="4" 
+        class="border border-beige-500 p-2 w-full rounded focus:ring-beige-600 focus:border-beige-600 bg-beige-100 text-beige-900 h-32">
+        
+        @foreach($suppliers as $supplier)
+            <option value="{{ $supplier->id }}"
+                @if(old('supplier_id', $product->supplier_id) == $supplier->id)
+                    selected
+                @endif
+            >
+                {{ $supplier->nome ?? $supplier->company_name }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
     <div class="mb-3">
         <label class="block font-medium text-beige-800 mb-1">Preço</label>
