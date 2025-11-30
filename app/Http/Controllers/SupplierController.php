@@ -4,59 +4,72 @@ namespace App\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use App\Http\Requests\SupplierStoreRequest;
+use App\Http\Requests\SupplierUpdateRequest;
 
 class SupplierController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $suppliers = Supplier::orderBy('nome')->get();
+        $suppliers = Supplier::paginate(10);
         return view('suppliers.index', compact('suppliers'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         $supplier = new Supplier();
         return view('suppliers.create', compact('supplier'));
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(SupplierStoreRequest $request)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:150',
-            'telefone' => 'nullable|string|max:20',
-            'cnpj' => 'required|string|max:18|unique:suppliers,cnpj',
-            'endereco' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:suppliers,email',
-        ]);
-
-        Supplier::create($validated);
+        Supplier::create($request->validated());
 
         return redirect()->route('suppliers.index')->with('success', 'Fornecedor criado com sucesso!');
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function show(Supplier $supplier)
+    {
+        return view('suppliers.show', compact('supplier'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Supplier $supplier)
     {
         return view('suppliers.edit', compact('supplier'));
     }
 
-    public function update(Request $request, Supplier $supplier)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(SupplierUpdateRequest $request, Supplier $supplier)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:150',
-            'telefone' => 'nullable|string|max:20',
-            'cnpj' => 'required|string|max:18|unique:suppliers,cnpj,' . $supplier->id, // Ignora o CNPJ atual
-            'endereco' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:suppliers,email,' . $supplier->id, // Ignora o Email atual
-        ]);
-
-        $supplier->update($validated);
+        $supplier->update($request->validated());
 
         return redirect()->route('suppliers.index')->with('success', 'Fornecedor atualizado com sucesso!');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();
-        return redirect()->route('suppliers.index')->with('success', 'Fornecedor removido com sucesso!');
+
+        return redirect()->route('suppliers.index')->with('success', 'Fornecedor excluído com sucesso!');
     }
 }
